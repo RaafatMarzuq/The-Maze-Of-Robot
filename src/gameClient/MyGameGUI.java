@@ -24,6 +24,7 @@ import ex2DataStructure.graph;
 import ex2DataStructure.node_data;
 import gameElements.Fruits;
 import gameElements.Robots;
+import gameElements.fruit;
 import ex2GUI.graphGUI;
 import ex2utils.Point3D;
 import ex2utils.StdDraw;
@@ -35,7 +36,6 @@ public class MyGameGUI implements Runnable {
 	public  List<Fruits> game_Fruits= new ArrayList<Fruits>();
 	private boolean flag= false;
 	private game_service game_serv; 
-	private Thread r;
 	private KML_save kl;
 	private int id;
 
@@ -46,19 +46,17 @@ public class MyGameGUI implements Runnable {
 				JOptionPane.INFORMATION_MESSAGE, null, _optins,_optins[0] );
 		StdDraw.setMode((String) selectedMode);
 		StdDraw.setMyGui(this);
-		if(((String) selectedMode).equals("Automatic Player")) {
-			StdDraw.setMode((String) selectedMode);
-		//	StdDraw.setMyGui(this);
+		
 
 		}
-	}
+	
 	public void Automatic_Player(int id, int Map ) {
-//		Game_Server.login(id);
+	//	this.setId(id);	
+	//	Game_Server.login(id);
 		game_service game = Game_Server.getServer(Map); // you have [0,23] games
 		this.setGame_serv(game);
 		String gameMap = game.getGraph();
 		((DGraph) this.g).init(gameMap);
-		kl = new KML_save(Map);
 		this.setKl(kl);
 		this.graphGUI= new graphGUI(this.g);
 		this.graphGUI.drawAll();
@@ -84,14 +82,25 @@ public class MyGameGUI implements Runnable {
 			while(f_iter.hasNext()) {
 				Fruits new_fruits= new Fruits(f_iter.next(),(DGraph) this.g);
 				game_Fruits.add(new_fruits);
+				new_fruits.fruit_between_nodes(this.g);
 			}
 			updateGraph();
-			start_automatic_game(this,game ,kl );
+			kl = new KML_save(Map);
+			start_automatic_game(this,game  );
 		}
 		catch (Exception e) {
 			System.out.println("ERROR : Automatic Player");
 		}		
 	}
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	///SetMap is for the manual mode
 	public void setMap(MyGameGUI my_game, int Map ) {
 
 		game_service game = Game_Server.getServer(Map); // you have [0,23] games
@@ -102,6 +111,7 @@ public class MyGameGUI implements Runnable {
 		my_game.graphGUI= new graphGUI(my_game.g);
 		my_game.graphGUI.drawAll();
 		kl = new KML_save(Map);
+		
 		setKl(kl);
 		String info = game.toString();
 		JSONObject line;
@@ -118,6 +128,7 @@ public class MyGameGUI implements Runnable {
 			while(f_iter.hasNext()) {
 				Fruits new_fruits= new Fruits(f_iter.next(),(DGraph) my_game.g);
 				game_Fruits.add(new_fruits);
+				
 			}
 			this.graphGUI.drawAll();
 			this.drawFruits();
@@ -128,7 +139,7 @@ public class MyGameGUI implements Runnable {
 
 	}
 	
-	public void start_automatic_game(MyGameGUI my_game , game_service game ,KML_save kl) {
+	public void start_automatic_game(MyGameGUI my_game , game_service game ) {
 		
 		new Thread()
 		{
@@ -137,42 +148,34 @@ public class MyGameGUI implements Runnable {
 		game.startGame();
 		
 		updateGraph();
-		update_robots_and_fruits();
+		update_robots_and_fruits();;
 		
 		int t=0;
-		long dt=52;
+		long time=game.timeToEnd();
 		
 		while(game.isRunning())
 		{	
 			StdDraw.enableDoubleBuffering();
 		moveRobots(game,(DGraph) my_game.g,my_game);
 		if(t%1==0) {
+			if((time/1000) >0) {
 			updateGraph();
 			update_robots_and_fruits();
-			
+			}
 		}
 		
-		try {
-			Thread.sleep(dt);
-			t++;
-
-		} catch (Exception e) {
-		}
 		StdDraw.show();
 		}
-		
-        System.out.println("blah");
-    
-		
         if(!game.isRunning()) {
 			 String[] game_over=getScore();
 				JOptionPane.showMessageDialog(null, "Game Over \nYour Score : "+game_over[0] + 
-						"\nYou made :  "+ game_over[1] +" movrs","Game Over",2);
+						"\nYou made :  "+ game_over[1] +" moves","Game Over",2);
 			 }
 			
 		    }
 		}.start();
 		kl.KML_Stop();
+		String remark = kl.toString(); game.sendKML(remark); 
 	}
 
 	private String[] getScore() {
@@ -232,7 +235,7 @@ public class MyGameGUI implements Runnable {
 			game.move();
 
 
-			while(my_game.game_robots.get(choosen_robot).getSrc() != Integer.parseInt(next))
+			while(my_game.game_robots.get(choosen_robot).getSrc() != Integer.parseInt(next)&& game.isRunning())
 			{	
 				StdDraw.clear();
 				StdDraw.enableDoubleBuffering();
@@ -292,18 +295,20 @@ public class MyGameGUI implements Runnable {
 					int rid = ttt.getInt("id");
 					int src = ttt.getInt("src");
 					int dest = ttt.getInt("dest");
+					int _fruit=(int) (Math.random()*game_Fruits.size());
+					fruit f= game_Fruits.get(2);
+					List<node_data> list = shortPath(rid, f);
+					for (node_data node_data : list) {
+					
+						if(dest==-1) {	
+							dest = node_data.getKey();
+							game.chooseNextEdge(rid, dest);
+							this.getKl().Place_Mark(game_robots.get(rid)+" ",game_robots.get(rid).getLocation()+" ");
 
-					if(dest==-1) {	
-						dest = nextNode(gg, src);
-						game.chooseNextEdge(rid, dest);
-						my_game.updateGraph();
-						my_game.update_robots_and_fruits();
-						this.getKl().Place_Mark(game_robots.get(rid)+" ",game_robots.get(rid).getLocation()+" ");
-
-						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println(ttt);
+							System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+							System.out.println(ttt);
+						}
 					}
-
 				} 
 				catch (JSONException e) {e.printStackTrace();}
 			}
@@ -320,13 +325,14 @@ public class MyGameGUI implements Runnable {
 			game_Fruits.add(new_fruits);
 			drawFruits();
 		}
+		
 		Iterator<String> R_iter = this.getGame_serv().move().iterator();
 		while(R_iter.hasNext()) {
 			Robots new_robot =new Robots(R_iter.next());
 			
 			this.game_robots.add(new_robot);
 			
-		
+
 			drawRobots();
 		}
 
@@ -340,11 +346,11 @@ public class MyGameGUI implements Runnable {
 				double _w[]= {(0.003)*0.5,(0.001)*0.5};
 				double _h[]= {(0.001)*0.5,(0.001)*0.5};		
 
-				if(fruit.type== -1) {
-					StdDraw.picture(fruit.getLocation().x(), fruit.location.y()+(0.0001), names[0], _w[0], _h[0]);
+				if(fruit.getType()== -1) {
+					StdDraw.picture(fruit.getLocation().x(), fruit.getLocation().y()+(0.0001), names[0], _w[0], _h[0]);
 				}
-				if(fruit.type== 1) {
-					StdDraw.picture(fruit.getLocation().x(), fruit.location.y()+(0.0001), names[1], _w[1], _h[1]);
+				if(fruit.getType()== 1) {
+					StdDraw.picture(fruit.getLocation().x(), fruit.getLocation().y()+(0.0001), names[1], _w[1], _h[1]);
 				}
 			}
 		}
@@ -363,6 +369,7 @@ public class MyGameGUI implements Runnable {
 				double _w[]= {(0.003)*0.5,(0.004)*0.5,(0.003)*0.5};
 				double _h[]= {(0.002)*0.5,(0.002)*0.5,(0.002)*0.5};		
 				StdDraw.picture(panda.getLocation().x(),panda.getLocation().y(), names[panda.id], _w[panda.id], _h[panda.id]);
+				this.kl.Place_Mark(panda.id+" ",panda.location+" ");
 
 			}
 		}
@@ -395,27 +402,28 @@ public class MyGameGUI implements Runnable {
 		this.kl = kl;
 	}
 
+	private List<node_data> shortPath(int id,fruit f) {
+		int dest= f.getEgde().getSrc();
+		for (Robots robot : game_robots) {
+			if(robot.getId()==id) {
+				int src = robot.getSrc();
+				return this.algo.shortestPath(src, dest);
+				
+			}
+			
+		}
+		
+		return null;
+
+	}
+	
 	@Override
 	public void run() {
-		StdDraw.clear();
-		StdDraw.enableDoubleBuffering();
-		while(getGame_serv().isRunning())
-		{
-			if(getGame_serv().isRunning())
-
-			{
-				getGame_serv().move();
-				updateGraph();
-				drawFruits();
-				drawRobots();
-			}
-			try {
-				Thread.sleep(35);
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		// TODO Auto-generated method stub
+		
 	}
-}
+
+	
+	}
+
 

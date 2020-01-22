@@ -57,6 +57,7 @@ public class KML_save {
 
 	void Place_Mark(String id, String location)
 	{
+		
 		LocalDateTime time = LocalDateTime.now();
 		str.append(
 				"    <Placemark>\r\n" +
