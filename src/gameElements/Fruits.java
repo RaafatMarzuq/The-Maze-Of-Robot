@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import ex2DataStructure.DGraph;
 import ex2DataStructure.edge;
 import ex2DataStructure.edge_data;
+import ex2DataStructure.graph;
 import ex2DataStructure.node_data;
 import ex2utils.Point3D;
 
@@ -22,7 +23,8 @@ public class Fruits implements fruit{
 	public Point3D location;
 	
 	
-	public Fruits(String fruit, DGraph g) {
+	public Fruits(String fruit, DGraph g)
+	{
 		String new_fr= fruit.substring(10, fruit.length()-2);
 		String c[] = new_fr.split(",");
 		String v=c[0].substring(8);
@@ -36,33 +38,27 @@ public class Fruits implements fruit{
 		double _y=Double.parseDouble(c[3]);
 		Point3D fruit_location = new Point3D(_x, _y);
 		this.location= fruit_location;
-		//this._edge= getEd(this.location,g);
-				
-	
-
 	}
 	
-
-	private edge getEd(Point3D location2, DGraph g) {
-		Iterator<node_data> nodes=g.getV().iterator();
-		while(nodes.hasNext()) {
-			node_data _node=nodes.next();
-			node_data next_node=nodes.next();
-			double _d1=_node.getLocation().distance2D(location2);
-			double _d2=location2.distance2D(next_node.getLocation());
-			double _d3=_node.getLocation().distance2D(next_node.getLocation());
-			if( (_d1+_d2) == _d3  ) {
-				int src=_node.getKey();
-				int dest=next_node.getKey();
-				edge e=(edge) g.getEdge(src, dest);
-				return e;
+	public void fruit_between_nodes(graph g)
+	{
+		Collection<node_data> points = g.getV();
+		for(node_data nodes: points) 
+		{
+			Collection<edge_data> e = g.getE(nodes.getKey());
+			for (edge_data edge : e) 
+			{
+				Point3D node_location = nodes.getLocation();
+				Point3D node_dest_location = g.getNode(edge.getDest()).getLocation();
+				double node_src_to_fruit = node_location.distance2D(this.getLocation());
+				double fruit_to_node_dst = this.getLocation().distance2D(node_dest_location);
+				double node_src_to_node_dst = node_location.distance2D(node_dest_location);
+				if(node_src_to_fruit + fruit_to_node_dst == node_src_to_node_dst) 
+					if(edge.getSrc() < edge.getDest() && this.getType() == 1) this.set_edge((ex2DataStructure.edge) edge);
+					else if(edge.getSrc() > edge.getDest() && this.getType() == -1) this.set_edge((ex2DataStructure.edge) edge);
 			}
 		}
-
-		return null;
 	}
-
-
 	public edge get_edge() {
 		return _edge;
 	}
@@ -102,9 +98,8 @@ public class Fruits implements fruit{
 		return null;
 	}
 	@Override
-	public void setEdge(edge e) {
-		// TODO Auto-generated method stub
-		
+	public void setEdge(edge e) 
+	{
+		this._edge = e;
 	}
-	
 }		
