@@ -303,11 +303,14 @@ public class MyGameGUI implements Runnable {
 			
 					Fruits f= game_Fruits.get(0);
 					int friut_src=f.getSrc();
+					
 					List<node_data> list = shortPath(rid,friut_src );
 					for (node_data node_data : list) {
 					
-						if(dest==-1) {	
+						if(dest==-1) {
 							dest = node_data.getKey();
+
+							System.out.println("dest " + dest );
 							game.chooseNextEdge(rid, dest);
 							game.move();
 						while(game_robots.get(rid).getDest() != -1) {
