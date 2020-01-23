@@ -35,6 +35,7 @@ public class MyGameGUI implements Runnable {
 	private game_service game_serv; 
 	private KML_save kl;
 	private int id;
+	private long dt;
 
 	public MyGameGUI() 
 	{
@@ -54,6 +55,7 @@ public class MyGameGUI implements Runnable {
 		((DGraph) this.g).init(gameMap);
 		this.algo.init(g);
 		this.setKl(kl);
+		kl = new KML_save(Map,game);
 		this.graphGUI= new graphGUI(this.g);
 		this.graphGUI.drawAll();
 
@@ -86,8 +88,11 @@ public class MyGameGUI implements Runnable {
 				
 			}
 			updateGraph();
-			kl = new KML_save(Map,game);
+			
 			start_automatic_game(this,game);
+			
+			System.out.println("ssss");
+
 		}
 		catch (Exception e) {
 			System.out.println("ERROR : Automatic Player");
@@ -162,8 +167,7 @@ public class MyGameGUI implements Runnable {
 							updateGraph();
 							update_robots_and_fruits();
 						try {	
-							int d=133;
-							Thread.sleep(d);
+							Thread.sleep(dt);
 					}catch (Exception e) {
 					}
 						}
@@ -177,12 +181,11 @@ public class MyGameGUI implements Runnable {
 					String[] game_over=getScore();
 					JOptionPane.showMessageDialog(null, "Game Over \nYour Score : "+game_over[0] + 
 							"\nYou made :  "+ game_over[1] +" moves","Game Over",2);
+					kl.KML_Stop();
 				}
 			}
 		}.start();
-		kl.KML_Stop();
 		String remark = kl.toString(); game.sendKML(remark); 
-		System.out.println("Game_Over" + game.toString());
 	}
 	private String[] getScore() {
 		String game_over = getGame_serv().toString();
@@ -296,8 +299,7 @@ public class MyGameGUI implements Runnable {
 					JSONObject ttt = line.getJSONObject("Robot");
 					int rid = ttt.getInt("id");
 					int dest = ttt.getInt("dest");
-					int count=0;
-					
+				
 					Fruits f = closest_fruit(game_robots.get(rid).getSrc());
 					int fruit_source=f.getSrc();
 					
@@ -310,24 +312,21 @@ public class MyGameGUI implements Runnable {
 					}
 					else {dest = f.getDest();}
 					
-					if(dest==f.getDest()) {
-						
-						count++;
+					
+					double fromFruit = game_robots.get(rid).location.distance2D(f.getLocation());
+					if(fromFruit<0.0013) {
+						this.dt=50;
 					}
-						if(game.timeToEnd()/1000 == 39) {
-							game.chooseNextEdge(rid, 7);
+					else {this.dt=109;}
 						
-							count=0;
-						}
-						else {
-							
+						
 						game.chooseNextEdge(rid, dest);
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println(ttt);
 						
 						}
 					}
-				} 
+				
 				catch (JSONException e) {e.printStackTrace();}
 			}
 		}

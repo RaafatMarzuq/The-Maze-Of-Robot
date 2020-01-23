@@ -10,7 +10,7 @@ import ex2utils.*;
 import Server.game_service;
 
 public class KML_save {
-/*
+	/*
 
 	 * private data types of the class
 	 * int level
@@ -108,9 +108,8 @@ public class KML_save {
 				);
 	}
 
-	private long time = 0;
 
-	
+
 
 
 	/**
@@ -122,42 +121,37 @@ public class KML_save {
 	 */
 	void Place_Mark(String style, String location)
 	{
-		        LocalDateTime Present_time = LocalDateTime.now();
-//		       "      <TimeStamp>\r\n" +
-//		        "        <when>" + Present_time+ "</when>\r\n" +
-//		        "      </TimeStamp>\r\n" +
-		
-				 str.append("    <Placemark>\r\n" +
-						"      <TimeSpan>\r\n" +
-						"        <begin>" + time+ "</begin>\r\n" +
-						"        <end>" + (time+1) + "</end>\r\n" +
-						"      </TimeSpan>\r\n" +
-						"      <styleUrl>#" + style + "</styleUrl>\r\n" +
-						"      <Point>\r\n" +
-						"        <coordinates>" + location + "</coordinates>\r\n" +
-						"      </Point>\r\n" +
-						"    </Placemark>\r\n"
+		LocalDateTime Present_time = LocalDateTime.now();
+str.append(   "      <TimeStamp>\r\n" +
+				"        <when>" + Present_time+ "</when>\r\n" +
+				"      </TimeStamp>\r\n" +
+				 "    <Placemark>\r\n" +
+				"      <TimeSpan>\r\n" +
+				
+				 "        <begin>"+Present_time+ "</begin>\r\n" +
+				 "        <end>" + Present_time + "</end>\r\n" +
+				 "      </TimeSpan>\r\n" +
+				 "      <styleUrl>#" + style + "</styleUrl>\r\n" +
+				 "      <Point>\r\n" +
+				 "        <coordinates>" + location + "</coordinates>\r\n" +
+				 "      </Point>\r\n" +
+				 "    </Placemark>\r\n"
 				);
 	}
 
-	
-	void KML_Stop()
+
+	public void KML_Stop()
 	{
 		str.append("  \r\n</Document>\r\n" +
 				"</kml>");
 		SaveFile();
 	}
 
-	
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public void paintGraph(graph gr) {
-		for (node_data n : gr.getV()) {
-			for (edge_data e: gr.getE(n.getKey())) {
-				printEdge(gr, e);
 
-			}
-		}
-	}
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	
+
 	private void SaveFile(){
 		System.out.println(level);
 		System.out.println(str.toString());
@@ -168,31 +162,14 @@ public class KML_save {
 			PrintWriter pw=new PrintWriter(file);
 			pw.write(str.toString());
 			pw.close();
-			String current="Kml//"+level+".kml";
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	
-	private void printEdge(graph gr, edge_data e) {
-		str.append("<Placemark>\r\n" + 
-				"      <name>edge</name>\r\n" + 
-				"      <styleUrl>#yellowLineGreenPoly</styleUrl>\r\n" + 
-				"      <LineString>\r\n" + 
-				"        <coordinates> " + 
-				gr.getNode(e.getSrc()).getLocation()+
-				"\r\n"+
-				gr.getNode(e.getDest()).getLocation()+
-				"        </coordinates>\r\n" + 
-				"      </LineString>\r\n" + 
-				"    </Placemark>");
 
-	}
 	
 
-public void timeAdder() {
-	time++;
-}
+
 }
