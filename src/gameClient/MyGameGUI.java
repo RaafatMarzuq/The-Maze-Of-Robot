@@ -289,6 +289,7 @@ public class MyGameGUI implements Runnable {
 		{
 		    public void run() {
 		List<String> log = game.move();
+				
 		if(log!=null) {
 			long t =game.timeToEnd();
 			for(int i=0;i<log.size();i++) {
@@ -302,7 +303,7 @@ public class MyGameGUI implements Runnable {
 					int j=(int) (Math.random()*game_Fruits.size());
 			
 					Fruits f= game_Fruits.get(0);
-					int friut_src=f.getSrc();
+					int friut_src=f.getDest();
 					
 					List<node_data> list = shortPath(rid,friut_src );
 					for (node_data node_data : list) {
