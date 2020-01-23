@@ -8,17 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import gameClient.KML_save;
 import javax.swing.JOptionPane;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.sun.glass.ui.Robot;
-
 import Server.Game_Server;
 import Server.game_service;
 import ex2Algo.Graph_Algo;
 import ex2Algo.graph_algorithms;
 import ex2DataStructure.DGraph;
+import ex2DataStructure.NodeData;
 import ex2DataStructure.edge_data;
 import ex2DataStructure.graph;
 import ex2DataStructure.node_data;
@@ -46,13 +43,11 @@ public class MyGameGUI implements Runnable {
 				JOptionPane.INFORMATION_MESSAGE, null, _optins,_optins[0] );
 		StdDraw.setMode((String) selectedMode);
 		StdDraw.setMyGui(this);
-		
+	}
 
-		}
-	
 	public void Automatic_Player(int id, int Map ) {
-	//	this.setId(id);	
-	//	Game_Server.login(id);
+			this.setId(id);	
+			Game_Server.login(id);
 		game_service game = Game_Server.getServer(Map); // you have [0,23] games
 		this.setGame_serv(game);
 		String gameMap = game.getGraph();
@@ -61,33 +56,38 @@ public class MyGameGUI implements Runnable {
 		this.setKl(kl);
 		this.graphGUI= new graphGUI(this.g);
 		this.graphGUI.drawAll();
-		
+
 		String info = game.toString();
 		JSONObject line;
 		try {
 			line = new JSONObject(info);
 			JSONObject ttt = line.getJSONObject("GameServer");
 			int rs = ttt.getInt("robots");
-			for(int i=0; i < rs ;i++) {
+			for(int i=0; i < rs ;i++) 
+			{
 				Robots new_robot= new Robots(i);
-				int _random= (int)(Math.random()*g.nodeSize());
-				new_robot.setSrc(_random);
-				new_robot.setLocation(g.getNode(_random).getLocation());
-				this.game_robots.add(new_robot);
-				game.addRobot(new_robot.getSrc());
-
-
+				
+			
+			this.game_robots.add(new_robot);
+				
 			}
-
 			Iterator<String> f_iter = game.getFruits().iterator();
 			while(f_iter.hasNext()) {
 				Fruits new_fruits= new Fruits(f_iter.next(),(DGraph) this.g);
 				game_Fruits.add(new_fruits);
 				new_fruits.fruit_between_nodes(this.g);
 			}
+			for (Robots robot: this.game_robots) {
+				Fruits _random= closest_fruit(robot.getSrc());
+
+				robot.setSrc(_random.getSrc());
+				robot.setLocation(g.getNode(_random.getSrc()).getLocation());
+			game.addRobot(_random.getDest());
+				
+			}
 			updateGraph();
 			kl = new KML_save(Map);
-			start_automatic_game(this,game  );
+			start_automatic_game(this,game);
 		}
 		catch (Exception e) {
 			System.out.println("ERROR : Automatic Player");
@@ -112,7 +112,7 @@ public class MyGameGUI implements Runnable {
 		my_game.graphGUI= new graphGUI(my_game.g);
 		my_game.graphGUI.drawAll();
 		kl = new KML_save(Map);
-		
+
 		setKl(kl);
 		String info = game.toString();
 		JSONObject line;
@@ -129,7 +129,7 @@ public class MyGameGUI implements Runnable {
 			while(f_iter.hasNext()) {
 				Fruits new_fruits= new Fruits(f_iter.next(),(DGraph) my_game.g);
 				game_Fruits.add(new_fruits);
-				
+
 			}
 			this.graphGUI.drawAll();
 			this.drawFruits();
@@ -137,49 +137,52 @@ public class MyGameGUI implements Runnable {
 		catch (Exception e) {
 			System.out.println("Game Over");
 		}
-
 	}
-	
-	public void start_automatic_game(MyGameGUI my_game , game_service game ) {
-		
+
+	public void start_automatic_game(MyGameGUI my_game , game_service game ) 
+	{
 		new Thread()
 		{
-		    public void run() {
-
-		game.startGame();
-		
-		updateGraph();
-		update_robots_and_fruits();;
-		
-		int t=0;
-		long time=game.timeToEnd();
-		
-		while(game.isRunning())
-		{	
-			StdDraw.enableDoubleBuffering();
-		moveRobots(game,(DGraph) my_game.g,my_game);
-		if(t%1==0) {
-			if((time/1000) >0) {
-			updateGraph();
-			update_robots_and_fruits();
+			public void run() 
+			{
+				game.startGame();
+				updateGraph();
+				update_robots_and_fruits();
+				int t=0;
+				long time=game.timeToEnd();
+				while(game.isRunning())
+				{	
+					StdDraw.enableDoubleBuffering();
+					moveRobots(game,(DGraph) my_game.g,my_game);
+					if(t%1==0) 
+					{
+						if((time/1000) >0) 
+						{
+							updateGraph();
+							update_robots_and_fruits();
+						try {	
+							long d=97;
+							Thread.sleep(d);
+					}catch (Exception e) {
+					}
+						}
+						
+							
+					}
+					StdDraw.show();
+				}
+				if(!game.isRunning()) 
+				{
+					String[] game_over=getScore();
+					JOptionPane.showMessageDialog(null, "Game Over \nYour Score : "+game_over[0] + 
+							"\nYou made :  "+ game_over[1] +" moves","Game Over",2);
+				}
 			}
-		}
-		
-		StdDraw.show();
-		}
-        if(!game.isRunning()) {
-			 String[] game_over=getScore();
-				JOptionPane.showMessageDialog(null, "Game Over \nYour Score : "+game_over[0] + 
-						"\nYou made :  "+ game_over[1] +" moves","Game Over",2);
-			 }
-			
-		    }
-		    
 		}.start();
 		kl.KML_Stop();
 		String remark = kl.toString(); game.sendKML(remark); 
+		System.out.println("Game_Over" + game.toString());
 	}
-
 	private String[] getScore() {
 		String game_over = getGame_serv().toString();
 
@@ -196,81 +199,72 @@ public class MyGameGUI implements Runnable {
 		String[] game_over1= {Score,moves};
 		return game_over1 ;
 	}
-
-
-		public void start_manual_game(game_service game ,MyGameGUI my_game ) {
-			new Thread()
-			{
-			    public void run() {
-			
-		game.startGame();
-
-		while(game.isRunning())
+	public void start_manual_game(game_service game ,MyGameGUI my_game ) {
+		new Thread()
 		{
+			public void run() {
 
-			String[] robots_numbers = new String[my_game.game_robots.size()];
-			for (int _get = 0; _get < robots_numbers.length; _get++) {
-				robots_numbers[_get]=my_game.game_robots.get(_get).id +"";
+				game.startGame();
+
+				while(game.isRunning())
+				{
+
+					String[] robots_numbers = new String[my_game.game_robots.size()];
+					for (int _get = 0; _get < robots_numbers.length; _get++) {
+						robots_numbers[_get]=my_game.game_robots.get(_get).id +"";
+					}
+					System.out.println("Time to end" + game.timeToEnd()/1000);
+
+					int choosen_robot=0;
+					if(robots_numbers.length != 1) {
+						Object robot_id= JOptionPane.showInputDialog(null, "Choose your Robot " , "MOVE",
+								JOptionPane.INFORMATION_MESSAGE, null, robots_numbers, robots_numbers[0]);
+						choosen_robot=Integer.parseInt((String) robot_id);
+					}
+
+
+					Collection<edge_data>  neighbors= g.getE(my_game.game_robots.get(choosen_robot).getSrc());
+					String[] arr = new String[neighbors.size()];
+					int j=0;
+					for (edge_data nextE:neighbors) {
+						arr[j++] =nextE.getDest() + "";
+					}
+
+					Object _next= JOptionPane.showInputDialog(null, "Choose your next step for the robot " , "MOVE",
+							JOptionPane.INFORMATION_MESSAGE, null, arr, arr[0]);
+					String	next = _next.toString();
+
+					game.chooseNextEdge(my_game.game_robots.get(choosen_robot).getId(),Integer.parseInt(next));
+					game.move();
+
+
+					while(my_game.game_robots.get(choosen_robot).getSrc() != Integer.parseInt(next)&& game.isRunning())
+					{	
+						StdDraw.clear();
+						StdDraw.enableDoubleBuffering();
+						game.move();
+						game.chooseNextEdge(my_game.game_robots.get(choosen_robot).getId(),Integer.parseInt(next));
+						updateGraph();
+						update_robots_and_fruits();
+						StdDraw.show();
+					}
+					String[] game_over=getScore();
+					StdDraw.setPenColor(Color.blue);
+					StdDraw.setFont(new Font("Ariel", Font.ITALIC, 60));
+					StdDraw.text(0, 0, "Score: " +game_over[0] +" seconds");
+
+					System.out.println(99);
+
+				}
+				System.out.println(444);
+
+
 			}
-			System.out.println("Time to end" + game.timeToEnd()/1000);
+		}.start();
 
-			int choosen_robot=0;
-			if(robots_numbers.length != 1) {
-				Object robot_id= JOptionPane.showInputDialog(null, "Choose your Robot " , "MOVE",
-						JOptionPane.INFORMATION_MESSAGE, null, robots_numbers, robots_numbers[0]);
-				choosen_robot=Integer.parseInt((String) robot_id);
-			}
-
-
-			Collection<edge_data>  neighbors= g.getE(my_game.game_robots.get(choosen_robot).getSrc());
-			String[] arr = new String[neighbors.size()];
-			int j=0;
-			for (edge_data nextE:neighbors) {
-				arr[j++] =nextE.getDest() + "";
-			}
-			
-			Object _next= JOptionPane.showInputDialog(null, "Choose your next step for the robot " , "MOVE",
-					JOptionPane.INFORMATION_MESSAGE, null, arr, arr[0]);
-			String	next = _next.toString();
-			
-			game.chooseNextEdge(my_game.game_robots.get(choosen_robot).getId(),Integer.parseInt(next));
-			game.move();
-
-
-			while(my_game.game_robots.get(choosen_robot).getSrc() != Integer.parseInt(next)&& game.isRunning())
-			{	
-				StdDraw.clear();
-				StdDraw.enableDoubleBuffering();
-				game.move();
-				game.chooseNextEdge(my_game.game_robots.get(choosen_robot).getId(),Integer.parseInt(next));
-				updateGraph();
-				update_robots_and_fruits();
-			StdDraw.show();
-			}
-			String[] game_over=getScore();
-			StdDraw.setPenColor(Color.blue);
-			StdDraw.setFont(new Font("Ariel", Font.ITALIC, 60));
-			StdDraw.text(0, 0, "Score: " +game_over[0] +" seconds");
-			
-			System.out.println(99);
-			
-		}
-		System.out.println(444);
-		
-		
-			}
-			 }.start();
-			 
-			    this.kl.KML_Stop();
+		this.kl.KML_Stop();
 
 	}
-
-	
-
-
-
-	
-
 	private static int nextNode(DGraph g, int src) {
 		int ans = -1;
 		Collection<edge_data> ee = g.getE(src);
@@ -278,82 +272,90 @@ public class MyGameGUI implements Runnable {
 		int s = ee.size();
 		int r = (int)(Math.random()*s);
 		int i=0;
-		while(i<r) {itr.next();i++;}
+		while(i<r) 
+		{
+			itr.next();
+			i++;
+		}
 		ans = itr.next().getDest();
 		return ans;
 	}
-	
-
-	private  void moveRobots(game_service game, DGraph gg ,MyGameGUI my_game) {
-		new Thread()
-		{
-		    public void run() {
+	private  void moveRobots(game_service game, DGraph gg ,MyGameGUI my_game) 
+	{
 		List<String> log = game.move();
-				
-		if(log!=null) {
-			long t =game.timeToEnd();
-			for(int i=0;i<log.size();i++) {
+		if(log!=null) 
+		{
+			long t = game.timeToEnd();
+			for(int i=0;i<log.size();i++) 
+			{
 				String robot_json = log.get(i);
-				try {
+				try 
+				{
 					JSONObject line = new JSONObject(robot_json);
 					JSONObject ttt = line.getJSONObject("Robot");
 					int rid = ttt.getInt("id");
-					int src = ttt.getInt("src");
 					int dest = ttt.getInt("dest");
-					int j=(int) (Math.random()*game_Fruits.size());
-			
-					Fruits f= game_Fruits.get(0);
-					int friut_src=f.getDest();
-					
-					List<node_data> list = shortPath(rid,friut_src );
-					for (node_data node_data : list) {
-					
-						if(dest==-1) {
-							dest = node_data.getKey();
 
-							System.out.println("dest " + dest );
-							game.chooseNextEdge(rid, dest);
-							game.move();
-						while(game_robots.get(rid).getDest() != -1) {
-							game.move();
-							my_game.getKl().Place_Mark(game_robots.get(rid)+" ",game_robots.get(rid).getLocation()+" ");
-						}
-							System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-							System.out.println(ttt);
-						}
+					
+					Fruits f = closest_fruit(game_robots.get(rid).getSrc());
+					int fruit_source=f.getSrc();
+					
+					List<node_data> list = shortPath(rid , fruit_source);
+					list.add(new NodeData(fruit_source, f.getLocation()));
+					if(dest==-1) 
+					{	if(list.size() >1) {
+						dest = list.get(1).getKey();
+					}
+					else {dest = f.getDest();}
+
+						game.chooseNextEdge(rid, dest);
+						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+						System.out.println(ttt);
 					}
 				} 
 				catch (JSONException e) {e.printStackTrace();}
 			}
 		}
-		    }
-			}.start();
-
+	}
+	public Fruits closest_fruit(int robot_source)
+	{
+		int closest_fruit_node = Integer.MAX_VALUE;
+		Fruits f = null;
+		for (int i = 0; i < game_Fruits.size(); i++) 
+		{
+			int check = (int) this.algo.shortestPathDist(robot_source, game_Fruits.get(i).getSrc());
+			if(check < closest_fruit_node) 
+			{
+				closest_fruit_node = check;
+				f = game_Fruits.get(i);
+			}
+		}
+		return f;
 	}
 	//////////////////////////Drawing and updeating graph functions\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-	
-	private  void update_robots_and_fruits() {
+
+	private  void update_robots_and_fruits() 
+	{	
 		this.game_Fruits.clear();
 		this.game_robots.clear();
 		Iterator<String> f_iter = this.getGame_serv().getFruits().iterator();
-		while(f_iter.hasNext()) {
+		while(f_iter.hasNext()) 
+		{
 			Fruits new_fruits= new Fruits(f_iter.next(),(DGraph) this.g);
 			game_Fruits.add(new_fruits);
 			new_fruits.fruit_between_nodes(this.g);
-
 			drawFruits();
 		}
-		
+		if(this.game_serv.isRunning()) {
 		Iterator<String> R_iter = this.getGame_serv().move().iterator();
-		while(R_iter.hasNext()) {
+		while(R_iter.hasNext()) 
+		{
 			Robots new_robot =new Robots(R_iter.next());
-			
 			this.game_robots.add(new_robot);
-			
-
 			drawRobots();
 		}
-
+		}
+	
 	}
 	public void drawFruits() {
 		try {
@@ -394,7 +396,6 @@ public class MyGameGUI implements Runnable {
 		catch (Exception e) {
 		}
 	}
-
 	private void updateGraph() {
 		StdDraw.picture((graphGUI.getMaxX()+graphGUI.getMinX())/2, (graphGUI.getMinY()+graphGUI.getMaxY())/2, "robotsicon\\background.jpg");
 		this.graphGUI.drawEdges();
@@ -419,28 +420,23 @@ public class MyGameGUI implements Runnable {
 	public void setKl(KML_save kl) {
 		this.kl = kl;
 	}
-
-	private List<node_data> shortPath(int id,int dest) {
-		for (Robots robot : game_robots) {
-			if(robot.getId()==id) {
+	private List<node_data> shortPath(int id,int dest) 
+	{
+		for (Robots robot : game_robots) 
+		{
+			if(robot.getId()==id) 
+			{
 				int src = robot.getSrc();
 				return this.algo.shortestPath(src, dest);
-				
 			}
-			
 		}
-		
 		return null;
-
 	}
-	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		
-	}
 
-	
 	}
 
 
+}
