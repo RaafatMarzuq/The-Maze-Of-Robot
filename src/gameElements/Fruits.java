@@ -69,6 +69,7 @@ public class Fruits implements fruit{
 //					}
 					
 				}
+		
 			}
 		}
 	}
@@ -132,4 +133,4 @@ public class Fruits implements fruit{
 	{
 		this._edge = e;
 	}
-}		
+}
