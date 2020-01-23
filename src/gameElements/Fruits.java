@@ -59,7 +59,6 @@ public class Fruits implements fruit{
 				double d=(node_src_to_fruit + fruit_to_node_dst);
 				if((d - (node_src_to_node_dst))<=0+EPSELON ) {
 					//if(edge.getSrc() < edge.getDest() && this.getType() == 1) {
-						System.out.println("src node "+ edge.getSrc());
 						this.dest=edge.getDest();
 						this.src=edge.getSrc();
 						return;

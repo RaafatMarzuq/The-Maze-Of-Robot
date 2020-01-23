@@ -1800,7 +1800,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 				
 				
 				if(game_mode.equals("Automatic Player")){
-					if(Map < 0 || Map > 23) { JOptionPane.showMessageDialog(null, "The Map doesn't exist","Messege",0);}
+				//	if(Map < 0 || Map > 23) { JOptionPane.showMessageDialog(null, "The Map doesn't exist","Messege",0);}
 					Object initid = JOptionPane.showInputDialog(null, "enter your id ", "Log in",
 							JOptionPane.INFORMATION_MESSAGE);
 					int id= Integer.parseInt((String) initid);

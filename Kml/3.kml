@@ -2,7 +2,15 @@
 <kml xmlns="http://earth.google.com/kml/2.2">
   <Document>
     <name>Game stage :3</name>
- <Style id="node">
+<Style id="yellowLineGreenPoly">
+      <LineStyle>
+        <color>7f00ffff</color>
+        <width>4</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>7f00ff00</color>
+      </PolyStyle>
+    </Style> <Style id="node">
       <IconStyle>
         <Icon>
           <href>http://maps.google.com/mapfiles/kml/pal3/icon35.png</href>

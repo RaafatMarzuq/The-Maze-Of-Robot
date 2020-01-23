@@ -86,7 +86,7 @@ public class MyGameGUI implements Runnable {
 				
 			}
 			updateGraph();
-			kl = new KML_save(Map);
+			kl = new KML_save(Map,game);
 			start_automatic_game(this,game);
 		}
 		catch (Exception e) {
@@ -111,7 +111,7 @@ public class MyGameGUI implements Runnable {
 		((DGraph) my_game.g).init(gameMap);
 		my_game.graphGUI= new graphGUI(my_game.g);
 		my_game.graphGUI.drawAll();
-		kl = new KML_save(Map);
+		kl = new KML_save(Map, game);
 
 		setKl(kl);
 		String info = game.toString();
@@ -153,6 +153,7 @@ public class MyGameGUI implements Runnable {
 				while(game.isRunning())
 				{	
 					StdDraw.enableDoubleBuffering();
+
 					moveRobots(game,(DGraph) my_game.g,my_game);
 					if(t%1==0) 
 					{
@@ -161,7 +162,7 @@ public class MyGameGUI implements Runnable {
 							updateGraph();
 							update_robots_and_fruits();
 						try {	
-							long d=97;
+							int d=133;
 							Thread.sleep(d);
 					}catch (Exception e) {
 					}
@@ -295,7 +296,7 @@ public class MyGameGUI implements Runnable {
 					JSONObject ttt = line.getJSONObject("Robot");
 					int rid = ttt.getInt("id");
 					int dest = ttt.getInt("dest");
-
+					int count=0;
 					
 					Fruits f = closest_fruit(game_robots.get(rid).getSrc());
 					int fruit_source=f.getSrc();
@@ -304,13 +305,27 @@ public class MyGameGUI implements Runnable {
 					list.add(new NodeData(fruit_source, f.getLocation()));
 					if(dest==-1) 
 					{	if(list.size() >1) {
+						
 						dest = list.get(1).getKey();
 					}
 					else {dest = f.getDest();}
-
+					
+					if(dest==f.getDest()) {
+						
+						count++;
+					}
+						if(game.timeToEnd()/1000 == 39) {
+							game.chooseNextEdge(rid, 7);
+						
+							count=0;
+						}
+						else {
+							
 						game.chooseNextEdge(rid, dest);
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println(ttt);
+						
+						}
 					}
 				} 
 				catch (JSONException e) {e.printStackTrace();}
@@ -368,9 +383,12 @@ public class MyGameGUI implements Runnable {
 
 				if(fruit.getType()== -1) {
 					StdDraw.picture(fruit.getLocation().x(), fruit.getLocation().y()+(0.0001), names[0], _w[0], _h[0]);
+					this.kl.Place_Mark("fruit_1",fruit.location+" ");
 				}
 				if(fruit.getType()== 1) {
 					StdDraw.picture(fruit.getLocation().x(), fruit.getLocation().y()+(0.0001), names[1], _w[1], _h[1]);
+					this.kl.Place_Mark("fruit_1",fruit.location+" ");
+
 				}
 			}
 		}
@@ -389,7 +407,7 @@ public class MyGameGUI implements Runnable {
 				double _w[]= {(0.003)*0.5,(0.004)*0.5,(0.003)*0.5};
 				double _h[]= {(0.002)*0.5,(0.002)*0.5,(0.002)*0.5};		
 				StdDraw.picture(panda.getLocation().x(),panda.getLocation().y(), names[panda.id], _w[panda.id], _h[panda.id]);
-				this.kl.Place_Mark(panda.id+" ",panda.location+" ");
+				this.kl.Place_Mark(names[panda.id],panda.getLocation()+" ");
 
 			}
 		}
