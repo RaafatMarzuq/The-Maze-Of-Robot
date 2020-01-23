@@ -1,5 +1,5 @@
 # TheMazeOfRobotsWaze2.0
-TheMazeOfRobotsWaze
+TheMazeOfRobotsWaze 2.0
 This project is inspired and themed by the movie Kong Fu Panda.
 
 This project is a part of a Computer Science course called Object Oriented Programming. (Assignment 3).
