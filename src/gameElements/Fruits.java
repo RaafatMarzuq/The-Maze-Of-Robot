@@ -19,10 +19,10 @@ import gameClient.MyGameGUI;
 
 public class Fruits implements fruit{
 	private edge _edge;
-	public int type;
+	private int type,src=-2 ,dest=-2;
 	public double value;
 	public Point3D location;
-	private final double EPSELON= 0.0000000000000000002;
+	private final double EPSELON= 0.000000000000000002;
 	
 	public Fruits(String fruit, DGraph g)
 	{
@@ -57,13 +57,13 @@ public class Fruits implements fruit{
 				double fruit_to_node_dst = this.getLocation().distance2D(node_dest_location);
 				double node_src_to_node_dst = node_location.distance2D(node_dest_location);
 				double d=(node_src_to_fruit + fruit_to_node_dst);
-				System.out.println(d-node_src_to_node_dst	);
-				if((d - (node_src_to_node_dst))==0 ) {
+				if((d - (node_src_to_node_dst))<=0+EPSELON ) {
 					//if(edge.getSrc() < edge.getDest() && this.getType() == 1) {
 						System.out.println("src node "+ edge.getSrc());
-						this.set_edge((ex2DataStructure.edge) edge);
+						this.dest=edge.getDest();
+						this.src=edge.getSrc();
 						return;
-//					}
+	//					}
 //					else if(edge.getSrc() > edge.getDest() && this.getType() == -1) {
 //						this.set_edge((ex2DataStructure.edge) edge);
 //					}
@@ -73,6 +73,22 @@ public class Fruits implements fruit{
 		}
 	}
 	
+	public int getSrc() {
+		return src;
+	}
+
+	public void setSrc(int src) {
+		this.src = src;
+	}
+
+	public int getDest() {
+		return dest;
+	}
+
+	public void setDest(int dest) {
+		this.dest = dest;
+	}
+
 	public edge get_edge() {
 		return _edge;
 	}

@@ -29,7 +29,7 @@ public class DGraph implements graph,Serializable {
 	public   int MC=0;
 	public HashMap<Integer, HashMap<Integer,edge_data>> R = new HashMap<Integer, HashMap<Integer,edge_data>>();
 	public HashMap<Integer,node_data> G= new HashMap<>();
-
+	public List<edge> edges= new ArrayList<edge>();
 	//////////// Constructor//////////////	
 	public DGraph() {
 
@@ -57,6 +57,14 @@ public class DGraph implements graph,Serializable {
 		nodeSize++;
 		MC++;
 	}
+	public List<edge> getEdges() {
+		return edges;
+	}
+
+	public void setEdges(List<edge> edges) {
+		this.edges = edges;
+	}
+
 	public void init(String graph) {
 
 		try {
@@ -95,6 +103,7 @@ public class DGraph implements graph,Serializable {
 	public void connect(int src, int dest, double w) {
 
 		edge  a= new edge(src,dest,w);
+		this.edges.add(a);
 		NodeData  n1= (NodeData) G.get(src);
 		if(!R.containsKey(src)) 
 		{

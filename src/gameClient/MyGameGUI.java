@@ -57,6 +57,7 @@ public class MyGameGUI implements Runnable {
 		this.setGame_serv(game);
 		String gameMap = game.getGraph();
 		((DGraph) this.g).init(gameMap);
+		this.algo.init(g);
 		this.setKl(kl);
 		this.graphGUI= new graphGUI(this.g);
 		this.graphGUI.drawAll();
@@ -173,6 +174,7 @@ public class MyGameGUI implements Runnable {
 			 }
 			
 		    }
+		    
 		}.start();
 		kl.KML_Stop();
 		String remark = kl.toString(); game.sendKML(remark); 
@@ -283,7 +285,9 @@ public class MyGameGUI implements Runnable {
 	
 
 	private  void moveRobots(game_service game, DGraph gg ,MyGameGUI my_game) {
-
+		new Thread()
+		{
+		    public void run() {
 		List<String> log = game.move();
 		if(log!=null) {
 			long t =game.timeToEnd();
@@ -295,16 +299,21 @@ public class MyGameGUI implements Runnable {
 					int rid = ttt.getInt("id");
 					int src = ttt.getInt("src");
 					int dest = ttt.getInt("dest");
-					int _fruit=(int) (Math.random()*game_Fruits.size());
-					fruit f= game_Fruits.get(2);
-					List<node_data> list = shortPath(rid, f);
+					int j=(int) (Math.random()*game_Fruits.size());
+			
+					Fruits f= game_Fruits.get(0);
+					int friut_src=f.getSrc();
+					List<node_data> list = shortPath(rid,friut_src );
 					for (node_data node_data : list) {
 					
 						if(dest==-1) {	
 							dest = node_data.getKey();
 							game.chooseNextEdge(rid, dest);
-							this.getKl().Place_Mark(game_robots.get(rid)+" ",game_robots.get(rid).getLocation()+" ");
-
+							game.move();
+						while(game_robots.get(rid).getDest() != -1) {
+							game.move();
+							my_game.getKl().Place_Mark(game_robots.get(rid)+" ",game_robots.get(rid).getLocation()+" ");
+						}
 							System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 							System.out.println(ttt);
 						}
@@ -313,6 +322,9 @@ public class MyGameGUI implements Runnable {
 				catch (JSONException e) {e.printStackTrace();}
 			}
 		}
+		    }
+			}.start();
+
 	}
 	//////////////////////////Drawing and updeating graph functions\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 	
@@ -323,6 +335,8 @@ public class MyGameGUI implements Runnable {
 		while(f_iter.hasNext()) {
 			Fruits new_fruits= new Fruits(f_iter.next(),(DGraph) this.g);
 			game_Fruits.add(new_fruits);
+			new_fruits.fruit_between_nodes(this.g);
+
 			drawFruits();
 		}
 		
@@ -402,8 +416,7 @@ public class MyGameGUI implements Runnable {
 		this.kl = kl;
 	}
 
-	private List<node_data> shortPath(int id,fruit f) {
-		int dest= f.getEgde().getSrc();
+	private List<node_data> shortPath(int id,int dest) {
 		for (Robots robot : game_robots) {
 			if(robot.getId()==id) {
 				int src = robot.getSrc();

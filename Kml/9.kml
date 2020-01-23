@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+  <Document>
+    <name>Game stage :9</name>
+ <Style id="node">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/pal3/icon35.png</href>
+        </Icon>
+        <hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+      </IconStyle>
+    </Style> <Style id="fruit_-1">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/paddle/purple-stars.png</href>
+        </Icon>
+        <hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+      </IconStyle>
+    </Style> <Style id="fruit_1">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/paddle/red-stars.png</href>
+        </Icon>
+        <hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+      </IconStyle>
+    </Style> <Style id="robot">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/motorcycling.png></href>
+        </Icon>
+        <hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+      </IconStyle>
+    </Style>  
+</Document>
+</kml>
