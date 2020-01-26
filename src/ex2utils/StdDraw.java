@@ -62,6 +62,7 @@ import java.io.IOException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -77,6 +78,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.KeyStroke;
 
 import Server.game_service;
@@ -1800,7 +1803,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 				
 				
 				if(game_mode.equals("Automatic Player")){
-				//	if(Map < 0 || Map > 23) { JOptionPane.showMessageDialog(null, "The Map doesn't exist","Messege",0);}
+					if(Map < 0 || Map > 23) { JOptionPane.showMessageDialog(null, "The Map doesn't exist","Messege",0);}
 					Object initid = JOptionPane.showInputDialog(null, "enter your id ", "Log in",
 							JOptionPane.INFORMATION_MESSAGE);
 					int id= Integer.parseInt((String) initid);
@@ -1817,8 +1820,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			}
 
 			break;
-
-	
+		
 		
 		default:
 			break;

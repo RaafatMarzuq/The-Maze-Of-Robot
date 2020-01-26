@@ -48,7 +48,7 @@ public class MyGameGUI implements Runnable {
 
 	public void Automatic_Player(int id, int Map ) {
 			this.setId(id);	
-			Game_Server.login(id);
+		Game_Server.login(id);
 		game_service game = Game_Server.getServer(Map); // you have [0,23] games
 		this.setGame_serv(game);
 		String gameMap = game.getGraph();
@@ -157,8 +157,12 @@ public class MyGameGUI implements Runnable {
 				long time=game.timeToEnd();
 				while(game.isRunning())
 				{	
+					
 					StdDraw.enableDoubleBuffering();
-
+					String s[]=getScore();
+					StdDraw.setFont(new Font("Ariel", Font.CENTER_BASELINE, 30));
+					StdDraw.text(10, 10, "Score : "+s[0] +
+							"      Time : " +((getGame_serv().timeToEnd()/1000)+"")+" sec'" + "\nLevel : "+s[2] );
 					moveRobots(game,(DGraph) my_game.g,my_game);
 					if(t%1==0) 
 					{
@@ -179,8 +183,9 @@ public class MyGameGUI implements Runnable {
 				if(!game.isRunning()) 
 				{
 					String[] game_over=getScore();
-					JOptionPane.showMessageDialog(null, "Game Over \nYour Score : "+game_over[0] + 
+					JOptionPane.showMessageDialog(null,"Game Over \nlevel : " +game_over[2] + "\nYour Score : "+game_over[0] + 
 							"\nYou made :  "+ game_over[1] +" moves","Game Over",2);
+					
 					kl.KML_Stop();
 				}
 			}
@@ -191,16 +196,18 @@ public class MyGameGUI implements Runnable {
 		String game_over = getGame_serv().toString();
 
 		String Score = "", moves="";
+		String level ="";
 		try {
 			JSONObject obj = new JSONObject(game_over);
 			JSONObject robot_param = obj.getJSONObject("GameServer");
 			Score =  robot_param.getInt("grade")+"";
 			moves =  robot_param.getDouble("moves") +"";
-
+			level = robot_param.getInt("game_level") + "";
+			System.err.println(robot_param);
 		}catch (Exception e) {
 
 		}
-		String[] game_over1= {Score,moves};
+		String[] game_over1= {Score,moves,level};
 		return game_over1 ;
 	}
 	public void start_manual_game(game_service game ,MyGameGUI my_game ) {
@@ -256,7 +263,7 @@ public class MyGameGUI implements Runnable {
 					StdDraw.setPenColor(Color.blue);
 					StdDraw.setFont(new Font("Ariel", Font.ITALIC, 60));
 					StdDraw.text(0, 0, "Score: " +game_over[0] +" seconds");
-
+					
 					System.out.println(99);
 
 				}
@@ -315,9 +322,9 @@ public class MyGameGUI implements Runnable {
 					
 					double fromFruit = game_robots.get(rid).location.distance2D(f.getLocation());
 					if(fromFruit<0.0013) {
-						this.dt=50;
+						this.dt=60;
 					}
-					else {this.dt=109;}
+					else {this.dt=119;}
 						
 						
 						game.chooseNextEdge(rid, dest);
@@ -389,6 +396,7 @@ public class MyGameGUI implements Runnable {
 					this.kl.Place_Mark("fruit_1",fruit.location+" ");
 
 				}
+				
 			}
 		}
 		catch (Exception e) {
@@ -407,7 +415,8 @@ public class MyGameGUI implements Runnable {
 				double _h[]= {(0.002)*0.5,(0.002)*0.5,(0.002)*0.5};		
 				StdDraw.picture(panda.getLocation().x(),panda.getLocation().y(), names[panda.id], _w[panda.id], _h[panda.id]);
 				this.kl.Place_Mark(names[panda.id],panda.getLocation()+" ");
-
+				
+				
 			}
 		}
 		catch (Exception e) {
