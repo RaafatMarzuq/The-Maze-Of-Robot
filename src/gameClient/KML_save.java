@@ -153,8 +153,6 @@ str.append(   "      <TimeStamp>\r\n" +
 	
 
 	private void SaveFile(){
-		System.out.println(level);
-		System.out.println(str.toString());
 
 		try
 		{

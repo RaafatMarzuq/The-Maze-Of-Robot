@@ -43,9 +43,9 @@ public class SimpleGameClient {
 	public static void main(String[] a) {
 		//test1();
 		MyGameGUI game= new MyGameGUI();
-	//	game.drawGraph();
-	//	test2();
-		}
+		//	game.drawGraph();
+		//	test2();
+	}
 	public static void test2()
 	{
 		int counter = 0;
@@ -63,7 +63,7 @@ public class SimpleGameClient {
 			}
 		}
 	}
-	
+
 	public static void test1() {
 		int scenario_num = 23;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
@@ -72,7 +72,6 @@ public class SimpleGameClient {
 		gg.init(g);
 		System.out.println(gg.G.get(3).getKey());
 		MyGameGUI  graph= new MyGameGUI();
-	//	graph.drawGraph();
 		String info = game.toString();
 		JSONObject line;
 		try {
@@ -84,14 +83,11 @@ public class SimpleGameClient {
 				graph.game_robots.add(new_robot);
 				game.addRobot(new_robot.id);
 			}
-			System.out.println(info);
-			System.out.println(g);
 			// the list of fruits should be considered in your solution
 			Iterator<String> f_iter = game.getFruits().iterator();
 			while(f_iter.hasNext()) {
-			
-				System.out.println(f_iter.next());
-				}	
+
+			}	
 			int src_node = 0;  // arbitrary node, you should start at one of the fruits
 			for(int a = 0;a<rs;a++) {
 				game.addRobot(src_node+a);
@@ -102,12 +98,8 @@ public class SimpleGameClient {
 		// should be a Thread!!!
 		while(game.isRunning()) {
 			moveRobots(game, gg);
-			
-			
-			
 		}
 		String results = game.toString();
-		System.out.println("Game Over: "+results);
 	}
 	/** 
 	 * Moves each of the robots along the edge, 
@@ -117,7 +109,7 @@ public class SimpleGameClient {
 	 * @param log
 	 */
 	private static void moveRobots(game_service game, DGraph gg) {
-		
+
 		List<String> log = game.move();
 		if(log!=null) {
 			long t =game.timeToEnd();
@@ -129,15 +121,15 @@ public class SimpleGameClient {
 					int rid = ttt.getInt("id");
 					int src = ttt.getInt("src");
 					int dest = ttt.getInt("dest");
-				
+
 					if(dest==-1) {	
 						dest = nextNode(gg, src);
 						game.chooseNextEdge(rid, dest);
-						
+
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println(ttt);
 					}
-				
+
 				} 
 				catch (JSONException e) {e.printStackTrace();}
 			}

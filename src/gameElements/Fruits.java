@@ -58,14 +58,9 @@ public class Fruits implements fruit{
 				double node_src_to_node_dst = node_location.distance2D(node_dest_location);
 				double d=(node_src_to_fruit + fruit_to_node_dst);
 				if((d - (node_src_to_node_dst))<=0+EPSELON ) {
-					//if(edge.getSrc() < edge.getDest() && this.getType() == 1) {
 						this.dest=edge.getDest();
 						this.src=edge.getSrc();
 						return;
-	//					}
-//					else if(edge.getSrc() > edge.getDest() && this.getType() == -1) {
-//						this.set_edge((ex2DataStructure.edge) edge);
-//					}
 					
 				}
 		
@@ -123,13 +118,14 @@ public class Fruits implements fruit{
 		this.location = location;
 	}
 	@Override
-	public edge getEgde() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
 	public void setEdge(edge e) 
 	{
 		this._edge = e;
+	}
+
+	@Override
+	public edge getEgde() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
